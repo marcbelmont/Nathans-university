@@ -12,7 +12,8 @@ function compileT(time, e) {
   if (e.tag == 'repeat') {
     var notes = [];
     for (var i = 0; i < e.count; i++)
-      notes.push(noteObject(e.section, time + (e.section.dur * i)))
+      notes = notes.concat(compileT(time + endTime(0, e.section) * i,
+				    e.section));
     return notes;
   }
   var a = [];
@@ -40,7 +41,7 @@ function noteToMidi(note) {
 
 function endTime(start, e) {
   if (e.tag == 'note' || e.tag == 'rest') return start + e.dur;
-  if (e.tag == 'repeat') return start + e.section.dur * e.count
+  if (e.tag == 'repeat') return start + endTime(0, e.section) * e.count
   if (e.tag == 'par') {
     var l = endTime(start, e.left);
     var r = endTime(start, e.right);
@@ -72,9 +73,15 @@ var melody_repeat =
   { tag: 'repeat',
     section: { tag: 'note', pitch: 'c4', dur: 250 },
     count: 3 };
+var melody_repeat2 =
+  { tag: 'repeat',
+    section: { tag: 'seq',
+               left: { tag: 'note', pitch: 'c4', dur: 500 },
+               right: { tag: 'note', pitch: 'd4', dur: 500 } },
+    count: 3 };
 
 (function(m) {
   console.log(m);
   console.log(compile(m));
-})(melody_repeat);
+})(melody_repeat2);
 
