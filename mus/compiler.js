@@ -6,7 +6,7 @@ function compile(e) {
 
 function compileT(time, e) {
   if (e.tag == 'note')
-    return [noteObject(e, time)];
+    return [{tag: 'note', pitch: noteToMidi(e.pitch), start: time, dur: e.dur}];
   if (e.tag == 'rest')
     return [{tag: 'note', pitch: "", start: time, dur: e.dur}];
   if (e.tag == 'repeat') {
@@ -16,39 +16,34 @@ function compileT(time, e) {
 				    e.section));
     return notes;
   }
-  var a = [];
   if (e.tag == 'seq')
-    return a.concat(compileT(time, e.left),
-                    compileT(endTime(time, e.left), e.right));
-  return a.concat(compileT(time, e.left),
-                    compileT(time, e.right));
+    return compileT(time, e.left).concat(
+      compileT(endTime(time, e.left), e.right));
+  if (e.tag == 'par')
+    return compileT(time, e.left).concat(compileT(time, e.right));
+  return [];
 }
 
 /////////////
 // Helpers //
 /////////////
 
-function noteObject(e, time) {
-  return {tag: 'note', pitch: noteToMidi(e.pitch), start: time, dur: e.dur};
-}
-
 function noteToMidi(note) {
   if (typeof 'note' === 'number') return note;
   var letterPitch = {c:0, d:2, e:4, f:5, g:7, a:10, b:11};
-  var octave = Number(note.charAt(1));
-  return 12 + 12 * octave + letterPitch[note.charAt(0)];
+  return 12 * (Number(note.charAt(1)) + 1) + letterPitch[note.charAt(0)];
 }
 
 function endTime(start, e) {
-  if (e.tag == 'note' || e.tag == 'rest') return start + e.dur;
-  if (e.tag == 'repeat') return start + endTime(0, e.section) * e.count
-  if (e.tag == 'par') {
-    var l = endTime(start, e.left);
-    var r = endTime(start, e.right);
-    return l > r ? l : r;
-  }
-  return (endTime(start, e.left) +
-          endTime(start, e.right));
+  if (e.tag == 'note' || e.tag == 'rest')
+    return start + e.dur;
+  if (e.tag == 'repeat')
+    return start + endTime(0, e.section) * e.count;
+  if (e.tag == 'par')
+    return Math.max(endTime(start, e.left), endTime(start, e.right));
+  if (e.tag == 'seq')
+    return endTime(start, e.left) + endTime(start, e.right);
+  return start;
 }
 
 ///////////
@@ -83,5 +78,5 @@ var melody_repeat2 =
 (function(m) {
   console.log(m);
   console.log(compile(m));
-})(melody_repeat2);
+})(melody_mus);
 
