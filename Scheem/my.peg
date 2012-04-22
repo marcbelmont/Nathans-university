@@ -6,9 +6,10 @@ validchar
 atom =
     chars:validchar+
         { return chars.join(""); }
+space = [ \t\n]
 spacedexpression =
-	" " e:expression { return e; }
+	space+ e:expression { return e; }
 expression =
 	atom
-    / "(" a:atom s:spacedexpression* ")"
+    / space* "(" space* a:atom s:spacedexpression* space* ")" space*
     { return [a].concat(s); }

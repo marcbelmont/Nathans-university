@@ -9,4 +9,6 @@ fs.readFile('my.peg', 'ascii', function(err, data) {
     var parse = PEG.buildParser(data).parse;
     // Do a test
     assert.deepEqual( parse("(a b c)"), ["a", "b", "c"] );
+    assert.deepEqual( parse("(a  b  c)"), ["a", "b", "c"] );
+    assert.deepEqual( parse("  (a \n b  c ) "), ["a", "b", "c"] );
 });
