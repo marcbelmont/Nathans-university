@@ -1,15 +1,14 @@
-start =
-    expression
-validchar
-    = [0-9a-zA-Z_?!+-=@#$%^&*/.]
+start = expression
 
-atom =
-    chars:validchar+
-        { return chars.join(""); }
-space = [ \t\n]
-spacedexpression =
-	space+ e:expression { return e; }
-expression =
-	atom
-    / space* "(" space* a:atom s:spacedexpression* space* ")" space*
-    { return [a].concat(s); }
+atom = chars:[0-9a-zA-Z_?!+=@#$%^&*/.-]+ { return chars.join(""); }
+
+space =
+  [ \t\n]
+  / ";;" [^\n]*
+
+expression = space* e:cleanexpression space* { return e; }
+
+cleanexpression =
+  atom
+  / "(" e:expression+ ")" { return e; }
+  / "'" e:expression { return ['quote', e]; }
