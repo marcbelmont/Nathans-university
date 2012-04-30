@@ -1,6 +1,6 @@
 start = expression
 
-atom = chars:[0-9a-zA-Z_?!+=@#$%^&*/.-]+ { return chars.join(""); }
+atom = chars:[0-9a-zA-Z_?!+=@#$%^&*/.-]+ { var res = chars.join(""); return isNaN(parseFloat(res)) ? res : parseFloat(res); }
 
 space =
   [ \t\n]
