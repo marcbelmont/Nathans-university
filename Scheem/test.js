@@ -2,7 +2,7 @@ var PEG = require('pegjs');
 var assert = require('assert');
 var fs = require('fs'); // for loading files
 
-fs.readFile('my.peg', 'ascii', function(err, data) {
+fs.readFile('scheem.peg', 'ascii', function(err, data) {
   // Create my parser
   var parse = PEG.buildParser(data).parse;
   // Do tests
