@@ -5,7 +5,7 @@ var evalScheem = function (expr, env) {
   }
   // Variables
   if (typeof expr === 'string') {
-    return env[expr];
+    return lookup(env, expr);
   }
   // Look at head of list for operation
   switch (expr[0]) {
@@ -44,11 +44,13 @@ var evalScheem = function (expr, env) {
     // Variables
   case 'define':
     if (expr.length != 3) throw 'requires 2 arguments';
-    env[expr[1]] = evalScheem(expr[2], env);
+    if (!('bindings' in env))
+      env.bindings = {};
+    env.bindings[expr[1]] = evalScheem(expr[2], env);
     return 0;
   case 'set!':
-    if (!(expr[1] in env)) throw 'not defined';
-    env[expr[1]] = evalScheem(expr[2], env);
+    lookup(env, expr[1]);
+    update(env, expr[1], evalScheem(expr[2], env));
     return 0;
 
     // Comparison
@@ -104,3 +106,23 @@ if (typeof module !== 'undefined') {
     module.exports.evalScheem = evalScheem;
     module.exports.evalScheemString = evalScheemString;
 }
+
+
+/////////////
+// Helpers //
+/////////////
+
+var update = function (env, v, val) {
+  if (v in env.bindings)
+    env.bindings[v] = val;
+  else
+    update(env.outer, v, val);
+};
+
+var lookup = function (env, v) {
+  if (v in env.bindings)
+    return env.bindings[v];
+  if ('outer' in env && env.outer)
+    return lookup(env.outer, v);
+  throw 'not defined';
+};

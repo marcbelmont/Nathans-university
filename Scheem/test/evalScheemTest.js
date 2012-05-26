@@ -103,7 +103,7 @@ suite('environment', function() {
     evalScheem(['define', 'x', 3], env);
     assert.deepEqual(
       env,
-      {x: 3, y: 1}
+      {bindings:{x: 3}, y: 1}
     );
   });
   test('define too many parameters', function() {
@@ -112,10 +112,10 @@ suite('environment', function() {
     }).to.throw();
   });
   test('set!', function() {
-    var env = {x: 4, y: 1};
+    var env = {bindings:{x: 4, y: 1}};
     evalScheem(['set!', 'x', 3], env);
     assert.deepEqual(env,
-		     {x: 3, y: 1}
+		     {bindings:{x: 3, y: 1}}
 		    );
   });
   test('set! too many parameters', function() {
@@ -129,10 +129,10 @@ suite('environment', function() {
     }).to.throw();
   });
   test('set! expression', function() {
-    var env = {x: 4, y: 1};
+    var env = {bindings:{x: 4, y: 1}};
     evalScheem(['set!', 'x', ['+', 1, 2]], env);
     assert.deepEqual(env,
-		     {x: 3, y: 1}
+		     {bindings:{x: 3, y: 1}}
 		    );
   });
 });
@@ -150,15 +150,15 @@ suite('begin', function() {
     );
   });
   test('change environment', function() {
-    var env = {x: 4};
+    var env = {bindings:{x: 4}};
     evalScheem(['begin', ['set!', 'x', 3]], env);
     assert.deepEqual(
       env,
-      {x: 3}
+      {bindings:{x: 3}}
     );
   });
   test('track environment', function() {
-    var env = {x: 4};
+    var env = {bindings:{x: 4}};
     assert.deepEqual(evalScheem(['begin', ['set!', 'x', 3], ['+', 'x', 2]], env),
 		     5
 		    );
